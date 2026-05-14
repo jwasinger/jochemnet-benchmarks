@@ -1,0 +1,76 @@
+global:
+  log_level: info
+
+runner:
+  client_logs_to_stdout: true
+  docker_network: benchmarkoor
+  cleanup_on_start: true
+
+  benchmark:
+    generate_results_index: true
+    generate_suite_stats: true
+
+    tests:
+      metadata:
+        labels:
+          name: perf-devnet-3-24358000-amsterdam-stateful
+          chain: perf-devnet-3
+          block: "24358000"
+          test-type: stateful
+          context: bal
+          fork: amsterdam
+      
+#      filter: max_accounts # The filter can be used if you only want to run a specific test. Filtered by name (filename). Comment it out if you want to run the whole suite
+      
+      source:
+        local:
+          base_dir: /chad/benchmarks
+          pre_run_steps:
+            - "gas-bump.txt"
+            - "funding.txt"
+          steps:
+            setup:
+              - "setup/*.txt"
+            test:
+              - "testing/*.txt"
+      #opcode_source:
+      #  file: opcode_trace_results.json
+      #  archive: https://github.com/jochem-brouwer/files/raw/refs/heads/main/eest_bal_new.tar.gz
+
+  client:
+    config:
+      drop_memory_caches: "steps"
+      rollback_strategy: container-recreate
+
+      resource_limits:
+        # TODO (jwasinger): these following options don't work on my VM
+        # cpuset_count: 6
+        # cpu_freq: "3600MHz"
+        # cpu_turboboost: false
+        # cpu_freq_governor: performance
+        memory: "32g"
+        swap_disabled: true
+
+      genesis:
+        geth: https://gist.githubusercontent.com/skylenet/8226878ba786efcf10b5fd74be97fe41/raw/ab888a0f90dcf214bd5d3c36b3dfa1827335ecf9/genesis-jochemnet-24402727-amsterdam-genesis.json
+
+    datadirs:
+      # Supported methods:
+      # - zfs: Uses ZFS snapshots. Requires the source_dir to be on a ZFS formatted disk.
+      # - overlayfs: Uses OverlayFS to create writable layers on top of the source_dir
+      # - copy: Copies the data from source_dir to a new location for each run. This is the slowest method and should be used as a last resort.
+      geth:
+        source_dir: /chad/datadir
+        method: zfs
+
+  instances:
+
+    - id: geth-bal-full
+      client: geth
+      metadata:
+        labels:
+          bal-mode: full
+      image: localhost/client-go:latest
+      pull_policy: never
+      extra_args:
+        - --bal.executionmode=full
