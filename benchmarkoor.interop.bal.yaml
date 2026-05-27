@@ -11,6 +11,9 @@ runner:
     generate_suite_stats: true
 
     tests:
+      # filter: test_single_opcode.py__test_sstore_bloated[10GB-fork_Amsterdam-benchmark_test-cache_strategy_CacheStrategy.NO_CACHE-existing_slots_True-write_new_value_True-benchmark_300M].txt
+      # filter: regex:test_single_opcode.py__test_storage_sload_same_key_benchmark.*
+      # filter: test_single_opcode.py__test_sstore_bloated[10GB-fork_Amsterdam-benchmark_test-cache_strategy_CacheStrategy.NO_CACHE-existing_slots_True-write_new_value_True-benchmark_300M].txt
       metadata:
         labels:
           name: perf-devnet-3-24358000-amsterdam-stateful
